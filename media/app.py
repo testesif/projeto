@@ -1,10 +1,12 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
 import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@db/mydatabase'
 app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # Limite de 5 MB
 db = SQLAlchemy(app)
 
 class Submission(db.Model):
@@ -32,9 +34,14 @@ def media():
             db.session.add(new_submission)
             db.session.commit()
             
-            return "Arquivo enviado com sucesso!"
+            # Redireciona para a página de sucesso
+            return redirect(url_for('success'))
     
     return render_template('upload.html')
+
+@app.route('/success')
+def success():
+    return render_template('success.html')
 
 def allowed_file(filename):
     return '.' in filename and \

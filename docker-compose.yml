@@ -1,17 +1,11 @@
-version: '3.8'
-
 services:
   index:
     build: ./index
-    ports:
-      - "5000:5000"
     networks:
       - app-network
 
   media:
     build: ./media
-    ports:
-      - "5001:5001"
     depends_on:
       - db
     volumes:
