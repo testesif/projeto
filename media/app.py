@@ -6,7 +6,6 @@ import os
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@db/mydatabase'
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # Limite de 5 MB
 db = SQLAlchemy(app)
 
 class Submission(db.Model):
@@ -34,7 +33,6 @@ def media():
             db.session.add(new_submission)
             db.session.commit()
             
-            # Redireciona para a página de sucesso
             return redirect(url_for('success'))
     
     return render_template('upload.html')

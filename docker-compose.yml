@@ -1,17 +1,43 @@
 services:
   index:
     build: ./index
+    restart: unless-stopped
+    networks:
+      - app-network
+  solo:
+    build: ./solo
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  iptv:
+    build: ./iptv
+    restart: unless-stopped
     networks:
       - app-network
 
   media:
     build: ./media
-    depends_on:
-      - db
+    restart: unless-stopped
     volumes:
       - media-uploads:/app/uploads
     networks:
       - app-network
+  
+  projects:
+    build: ./projects
+    restart: unless-stopped
+    networks:
+      - app-network
+  
+  db:
+   image: postgres:15-alpine
+   env_file:
+    - .env
+   volumes:
+    - postgres-data:/var/lib/postgresql/data
+   networks:
+    - app-network
 
   nginx:
     build: ./nginx
@@ -20,17 +46,8 @@ services:
     depends_on:
       - index
       - media
-    networks:
-      - app-network
-
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydatabase
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - solo
+      - iptv
     networks:
       - app-network
 
