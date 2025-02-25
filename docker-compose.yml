@@ -1,4 +1,13 @@
 services:
+  
+  filebrowser:
+    image: filebrowser/filebrowser
+    volumes:
+      - media-uploads:/srv
+    ports:
+      - "8080:80"
+    networks:
+      - app-network      
   index:
     build: ./index
     restart: unless-stopped
