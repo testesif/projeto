@@ -1,5 +1,4 @@
 services:
-  
   filebrowser:
     image: filebrowser/filebrowser
     volumes:
@@ -7,12 +6,24 @@ services:
     ports:
       - "8080:80"
     networks:
-      - app-network      
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
   index:
     build: ./index
     restart: unless-stopped
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
   solo:
     build: ./solo
     restart: unless-stopped
@@ -32,21 +43,26 @@ services:
       - media-uploads:/app/uploads
     networks:
       - app-network
-  
+
   projects:
     build: ./projects
     restart: unless-stopped
     networks:
       - app-network
-  
+
   db:
-   image: postgres:15-alpine
-   env_file:
-    - .env
-   volumes:
-    - postgres-data:/var/lib/postgresql/data
-   networks:
-    - app-network
+    image: postgres:15-alpine
+    env_file:
+      - .env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   nginx:
     build: ./nginx
@@ -59,6 +75,11 @@ services:
       - iptv
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   postgres-data:
